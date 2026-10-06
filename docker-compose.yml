@@ -1,0 +1,48 @@
+# Stack AgroVale - portal, blog de comunicados e banco
+# Responsavel: Elias Martins de Almeida - 26127991
+
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - agro_banco_dados:/var/lib/mysql
+    networks:
+      - rede_agrovale
+
+  blog:
+    image: wordpress:6-apache
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "9091:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${MARIADB_DATABASE}
+      WORDPRESS_DB_USER: ${MARIADB_USER}
+      WORDPRESS_DB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - agro_blog_arquivos:/var/www/html
+    networks:
+      - rede_agrovale
+
+  portal:
+    image: eliasalmeidaa/agrovale-portal:1.0-26127991
+    restart: unless-stopped
+    ports:
+      - "8091:80"
+    networks:
+      - rede_agrovale
+
+volumes:
+  agro_banco_dados:
+  agro_blog_arquivos:
+
+networks:
+  rede_agrovale:
